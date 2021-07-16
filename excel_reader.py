@@ -236,6 +236,7 @@ END:VEVENT
 
                             try:
                                 with open(f'timetable.ics', 'a', encoding='UTF-8') as f:
+                                    #很意外, 那个重复属性应该是RRULE, 我竟然写错了
                                     ical_body_base = f'''
 BEGIN:VEVENT
 CREATED:{self.created}
@@ -246,7 +247,7 @@ LOCATION:{place}
 TZID:Asia/Shanghai
 SEQUENCE:0
 UID:{uid()}
-RULE:FREQ=WEEKLY;UNTIL={curr_week_end_str}T{daytimeend[irow]}Z;INTERVAL=1
+RRULE:FREQ=WEEKLY;UNTIL={curr_week_end_str}T{daytimeend[irow]}Z;INTERVAL=1
 DTSTART;TZID=Asia/Shanghai:{curr_week_str}T{daytimestart[irow]}
 DTEND;TZID=Asia/Shanghai:{curr_week_str}T{daytimeend[irow]}
 X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
