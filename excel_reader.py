@@ -124,25 +124,49 @@ END:VTIMEZONE
             for irow in range(3, 9):
                 celldata = self.table.cell(irow, icol).value
 
-                #整合在一起的话，最后收尾须抽象成复数，且在循环中更新须在抽象的使用完毕之后
-                #根据自然顺序
+                #整合在一起的话，最后收尾须抽象成复数，且在循环中更新须在抽象的使用完毕之后 2021.06.29
+                #上面这句话我已经看不懂了XD 2021.07.16
+                #根据自然顺序; 确定方括号的位置, 然后根据方括号确定不同部分的内容
+                #lef1, right 分别是左右方括号
                 left3 = -1
                 right3 = -2 #最后有一个换行符
                 left1 = celldata.find('[', left3 + 1)
+                endUnit = -2 #最后有一个换行符
+                #一个表格单元中可能有多组课程信息
+                #对于每一组: 第一对方括号内是教师信息, 于备注; 第一对方括号之前的是课程名称; 第二对是第几周; 第三对是地点;
+                #新增一种信息, 第三对方括号后至结尾, 为具体节数, 所涉及的现实对象就是跨连续大节的课程, 一律放在备注中 2021.07.16
+                #由于上述新变化, 需要将cname判断标准更改, 新增一个组边界
+                '''
+                #格式; 注释也得缩进
+                cname
+                [tname]
+                [week][place]
+                otherinfo
+                '''
                 while left1 >= 0:
+                    #第一个 [ 之前是课程名
                     left1 = celldata.find('[', left3 + 1)
-                    cname = celldata[right3 + 2: left1 - 1] # name\n 不包含换行符
+                    cname = celldata[endUnit + 2: left1 - 1] # name\n 不包含换行符
 
+                    #第一对[]内是教师名
                     right1 = celldata.find(']', right3 + 2)
-                    tname = celldata[left1 + 1: right1] #如果是实验，则tname为第几节
-
+                    tname = celldata[left1 + 1: right1] #如果是实验，则tname为第几节2021.06.29 ; 如果实验标有教师名, 则会在尾部标注第几节(〃＞目＜)
+                    
+                    #第二对[]第几周, 并做预处理
                     left2 = celldata.find('[', left1 + 1)
                     right2 = celldata.find(']', right1 + 1)
                     timestr = celldata[left2 + 1: right2 - 1] + ',' #替换“周”字为“,”
-
+                    
+                    #第三对[]地点
                     left3 = celldata.find('[', left2 + 1)
                     right3 = celldata.find(']', right2 + 1)
                     place = celldata[left3 + 1: right3]
+
+                    endUnit = celldata.find('\n', right3 + 2)
+                    if endUnit < 0:
+                        otherinfo = ''
+                    else:
+                        otherinfo = celldata[right3 + 1: endUnit]
 
                     # timestr: 3-5,7-19周
                     #由逗号分隔时间刻或时间段
@@ -167,7 +191,7 @@ BEGIN:VEVENT
 CREATED:{self.created}
 DTSTAMP:{self.created}
 SUMMARY:{cname}
-DESCRIPTION:{tname}
+DESCRIPTION:{tname}; {otherinfo}
 LOCATION:{place}
 TZID:Asia/Shanghai
 SEQUENCE:0
