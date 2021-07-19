@@ -131,7 +131,7 @@ END:VTIMEZONE
                 left3 = -1
                 right3 = -2 #最后有一个换行符
                 left1 = celldata.find('[', left3 + 1)
-                endUnit = -2 #最后有一个换行符
+                endUnit = -1 #一组最后换行符的位置
                 #一个表格单元中可能有多组课程信息
                 #对于每一组: 第一对方括号内是教师信息, 于备注; 第一对方括号之前的是课程名称; 第二对是第几周; 第三对是地点;
                 #新增一种信息, 第三对方括号后至结尾, 为具体节数, 所涉及的现实对象就是跨连续大节的课程, 一律放在备注中 2021.07.16
@@ -146,7 +146,7 @@ END:VTIMEZONE
                 while left1 >= 0:
                     #第一个 [ 之前是课程名
                     left1 = celldata.find('[', left3 + 1)
-                    cname = celldata[endUnit + 2: left1 - 1] # name\n 不包含换行符
+                    cname = celldata[endUnit + 1: left1 - 1] # name\n 不包含换行符
 
                     #第一对[]内是教师名
                     right1 = celldata.find(']', right3 + 2)
